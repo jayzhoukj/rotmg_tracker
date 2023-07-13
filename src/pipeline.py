@@ -85,7 +85,11 @@ def data_processing_pipeline(df: pd.DataFrame):
 
     def extract_rem_count(text):
         if 'Events' in text:
-            output = int(text.split('Events')[0].strip())
+            try:
+                output = int(text.split('Events')[0].strip())
+
+            except:
+                output = np.nan
 
         else:
             output = np.nan
