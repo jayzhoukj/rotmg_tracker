@@ -32,6 +32,7 @@ def webscraping_pipeline(data_limit: int = 200):
 
     all_status = []
     all_rem_counts = []
+    all_data_timestamps = []
 
     for i in range(data_limit):
         
@@ -50,8 +51,14 @@ def webscraping_pipeline(data_limit: int = 200):
             wait_duration=1.5
         )
 
+        data_timestamp = get_text(
+            driver=driver,
+            xpath=f'//*[@id="history"]/div[{i}]/div/table/tbody/tr/td[3]'
+        )
+
         all_status.append(status)
         all_rem_counts.append(rem_count)
+        all_data_timestamps.append(data_timestamp)
 
         if status == 'N/A':
             na_count += 1
@@ -62,8 +69,12 @@ def webscraping_pipeline(data_limit: int = 200):
     df = pd.DataFrame(
         data={
             'status': all_status,
-            'rem_counts': all_rem_counts
+            'rem_counts': all_rem_counts,
+            'data_timestamp': all_data_timestamps
         }
+    ).sort_values(
+        by=['data_timestamp'],
+        ascending=False
     )
 
     return df, data_collected_time
@@ -127,7 +138,7 @@ def data_processing_pipeline(df: pd.DataFrame):
         ascending=True
     ).drop_duplicates(
         subset=['server', 'realm'],
-        keep='last'
+        keep='first'
     )
 
     col_order = [
