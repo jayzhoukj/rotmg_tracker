@@ -15,11 +15,11 @@ def webscraping_pipeline(data_limit: int = 200):
     url = 'https://realmstock.com/pages/event-notifier'
 
     chrome_options = ChromeOptions()
-    # chrome_options.add_argument('--headless=new')
-    # chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--headless=new')
+    chrome_options.add_argument('--no-sandbox')
 
     chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-dev-shm-usage')
 
     driver = Chrome(
         service=Service(ChromeDriverManager().install()),
