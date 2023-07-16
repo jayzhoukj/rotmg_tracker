@@ -131,7 +131,7 @@ def data_processing_pipeline(df: pd.DataFrame):
     events_weight = 0.8
     players_weight = 0.2
 
-    max_realm_events = 40
+    max_realm_events = 50
     max_realm_players = 85
 
     # Calculate score for realm feasibility for o3 runs
@@ -173,7 +173,7 @@ def data_processing_pipeline(df: pd.DataFrame):
     events_weight = 0.2
     players_weight = 0.8
 
-    max_realm_events = 40
+    max_realm_events = 50
     max_realm_players = 85
 
     # Calculate score for ranking potential o3 runs

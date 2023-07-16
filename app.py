@@ -48,23 +48,6 @@ with right_panel:
         hide_index=True
     )
 
-    # st.dataframe(
-    #     data=df.drop(
-    #         columns=['score']
-    #     ).sort_values(
-    #         by=[
-    #             'n_players',
-    #             'n_events_rem'
-    #         ],
-    #         ascending=[
-    #             False,
-    #             True
-    #         ]
-    #     ),
-    #     use_container_width=True,
-    #     hide_index=True
-    # )
-
 
 # async def watch(refresh_label, table1, table2):
 #     while True:
