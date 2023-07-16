@@ -127,16 +127,21 @@ def data_processing_pipeline(df: pd.DataFrame):
     df['n_events_rem'] = df['n_events_rem'].apply(int)
     df['n_players'] = df['n_players'].apply(int)
 
+    # Setting calculation parameters
     events_weight = 0.8
     players_weight = 0.2
 
+    max_realm_events = 40
+    max_realm_players = 85
+
+    # Calculate score for realm feasibility for o3 runs
     df['score'] = (
         (
-            df['n_events_rem'] / 40
+            df['n_events_rem'] / max_realm_events
         ) * events_weight
     ) + (
         (
-            df['n_players'] / 85
+            df['n_players'] / max_realm_players
         ) * players_weight
     )
 
@@ -164,18 +169,23 @@ def data_processing_pipeline(df: pd.DataFrame):
 
     df_potential_runs = df.copy(deep=True)
 
+    # Set calculation parameters
     events_weight = 0.2
     players_weight = 0.8
 
+    max_realm_events = 40
+    max_realm_players = 85
+
+    # Calculate score for ranking potential o3 runs
     df_potential_runs['score'] = (
         (
-            1 / (
-                df['n_events_rem'] / 40
-            )
+            (
+                max_realm_events - df['n_events_rem']
+            ) / max_realm_events
         ) * events_weight
     ) + (
         (
-            df['n_players'] / 85
+            df['n_players'] / max_realm_players
         ) * players_weight
     )
 
