@@ -11,7 +11,7 @@ from src.pipeline import (
 
 # Getting data
 df_raw, data_collected_time = webscraping_pipeline()
-df = data_processing_pipeline(df=df_raw) 
+df, df_potential_runs = data_processing_pipeline(df=df_raw) 
 
 data_collected_time_clean = data_collected_time.rsplit('.', 1)[0]
 
@@ -25,7 +25,7 @@ st.set_page_config(
 
 # App page
 st.title('ROTMG Events Tracker')
-st.write(f'Data last refreshed on {data_collected_time_clean}')
+st.write(f'Data last refreshed on {data_collected_time_clean} GMT+00:00')
 
 left_panel, right_panel = st.columns(2)
 
@@ -43,21 +43,27 @@ with right_panel:
     st.subheader('Potential O3 Runs')
 
     st.dataframe(
-        data=df.drop(
-            columns=['score']
-        ).sort_values(
-            by=[
-                'n_players',
-                'n_events_rem'
-            ],
-            ascending=[
-                False,
-                True
-            ]
-        ),
+        data=df_potential_runs,
         use_container_width=True,
         hide_index=True
     )
+
+    # st.dataframe(
+    #     data=df.drop(
+    #         columns=['score']
+    #     ).sort_values(
+    #         by=[
+    #             'n_players',
+    #             'n_events_rem'
+    #         ],
+    #         ascending=[
+    #             False,
+    #             True
+    #         ]
+    #     ),
+    #     use_container_width=True,
+    #     hide_index=True
+    # )
 
 
 # async def watch(refresh_label, table1, table2):

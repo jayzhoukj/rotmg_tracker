@@ -127,7 +127,18 @@ def data_processing_pipeline(df: pd.DataFrame):
     df['n_events_rem'] = df['n_events_rem'].apply(int)
     df['n_players'] = df['n_players'].apply(int)
 
-    df['score'] = df['n_events_rem'] * 0.8 + df['n_players'] * 0.2
+    events_weight = 0.8
+    players_weight = 0.2
+
+    df['score'] = (
+        (
+            df['n_events_rem'] / 40
+        ) * events_weight
+    ) + (
+        (
+            df['n_players'] / 85
+        ) * players_weight
+    )
 
     df = df.sort_values(
         by=[
@@ -151,6 +162,29 @@ def data_processing_pipeline(df: pd.DataFrame):
 
     df = df[col_order].copy()
 
-    return df
+    df_potential_runs = df.copy(deep=True)
+
+    events_weight = 0.2
+    players_weight = 0.8
+
+    df_potential_runs['score'] = (
+        (
+            1 / (
+                df['n_events_rem'] / 40
+            )
+        ) * events_weight
+    ) + (
+        (
+            df['n_players'] / 85
+        ) * players_weight
+    )
+
+    df_potential_runs.sort_values(
+        by=['score'],
+        ascending=False,
+        inplace=True
+    )
+
+    return df, df_potential_runs
 
 
