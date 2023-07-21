@@ -113,9 +113,9 @@ def data_processing_pipeline(df: pd.DataFrame):
         (
             df['realm'] != 'Nexus'
         ) & (
-            df['realm'] != 'EUWest'
+            df['server'] != 'EUWest'
         ) & (
-            df['realm'] != 'USEast'
+            df['server'] != 'USEast'
         ) & (
             df['n_events_rem'] > 0
         ) & (
