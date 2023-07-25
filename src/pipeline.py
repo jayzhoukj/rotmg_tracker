@@ -121,16 +121,9 @@ def data_processing_pipeline(df: pd.DataFrame):
         by=['server'],
         ascending=True
     )
-
-    df_tier_2 = df = df[
-        (
-            df['n_events_rem'] > 15
-        ) & (
-            df['n_events_rem'] <= 25
-        )
-    ].copy()
     
-    df = df[
+
+    df_tier_1 = df[
         (
             df['n_events_rem'] > 0
         ) & (
@@ -138,7 +131,16 @@ def data_processing_pipeline(df: pd.DataFrame):
         )
     ].copy()
 
-    df_tier_1_feasibility = calculate_realm_feasibility(df=df)
+    df_tier_2 = df[
+        (
+            df['n_events_rem'] > 15
+        ) & (
+            df['n_events_rem'] <= 25
+        )
+    ].copy()
+
+
+    df_tier_1_feasibility = calculate_realm_feasibility(df=df_tier_1)
     df_tier_2_feasibility = calculate_realm_feasibility(df=df_tier_2)
     df_potential_runs = calculate_potential_runs(df=df)
 
