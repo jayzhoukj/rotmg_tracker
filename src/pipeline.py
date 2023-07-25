@@ -8,6 +8,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 from src.helpers.webscraping_utils import (
     get_text
 )
+from src.helpers.data_utils import (
+    data_cleaning,
+    calculate_realm_feasibility,
+    calculate_potential_runs
+)
 
 
 def webscraping_pipeline(data_limit: int = 200):
@@ -81,124 +86,62 @@ def webscraping_pipeline(data_limit: int = 200):
 
 
 def data_processing_pipeline(df: pd.DataFrame):
-    df = df[
+    df = data_cleaning(df=df)
+
+    df_all_servers = pd.DataFrame(
+        {
+            'server': [
+                'USWest4',
+                'USWest3',
+                'USWest',
+                'USSouthWest',
+                'USSouth3',
+                'USSouth',
+                'USNorthWest',
+                'USMidWest2',
+                'USMidWest',
+                'USEast2',
+                'EUWest2',
+                'EUSouthWest',
+                'EUNorth',
+                'EUEast',
+                'Australia',
+                'Asia'
+            ]
+        }
+    )
+
+    df_untracked_servers = df_all_servers[
         (
-            df['status'] != 'N/A'
-        ) & (
-            df['rem_counts'] != 'N/A'
+            df_all_servers['server'].apply(
+                lambda server: server not in df['server'].unique()
+            )
         )
-    ]
+    ].sort_values(
+        by=['server'],
+        ascending=True
+    )
 
-    df['server'] = df['status'].apply(lambda status: status.split(' ', 2)[0])
-    df['realm'] = df['status'].apply(lambda status: status.split(' ', 2)[1])
-    df['n_players'] = df['status'].apply(lambda status: status.split(' ', 2)[2].rsplit('/', 1)[0])
-    df['max_players'] = df['status'].apply(lambda status: status.split(' ', 2)[2].rsplit('/', 1)[-1])
-
-    def extract_rem_count(text):
-        if 'Events' in text:
-            try:
-                output = int(text.split('Events')[0].strip())
-
-            except:
-                output = np.nan
-
-        else:
-            output = np.nan
-
-        return output
-
-    df['n_events_rem'] = df['rem_counts'].apply(extract_rem_count)
-
+    df_tier_2 = df = df[
+        (
+            df['n_events_rem'] > 15
+        ) & (
+            df['n_events_rem'] <= 25
+        )
+    ].copy()
+    
     df = df[
         (
-            df['realm'] != 'Nexus'
-        ) & (
-            df['server'] != 'EUWest'
-        ) & (
-            df['server'] != 'USEast'
-        ) & (
             df['n_events_rem'] > 0
         ) & (
             df['n_events_rem'] <= 15
         )
-    ].drop(
-        columns=[
-            'status',
-            'rem_counts'
-        ]
-    )
+    ].copy()
 
-    df['n_events_rem'] = df['n_events_rem'].apply(int)
-    df['n_players'] = df['n_players'].apply(int)
+    df_tier_1_feasibility = calculate_realm_feasibility(df=df)
+    df_tier_2_feasibility = calculate_realm_feasibility(df=df_tier_2)
+    df_potential_runs = calculate_potential_runs(df=df)
 
-    # Setting calculation parameters
-    events_weight = 0.8
-    players_weight = 0.2
-
-    max_realm_events = 50
-    max_realm_players = 85
-
-    # Calculate score for realm feasibility for o3 runs
-    df['score'] = (
-        (
-            df['n_events_rem'] / max_realm_events
-        ) * events_weight
-    ) + (
-        (
-            df['n_players'] / max_realm_players
-        ) * players_weight
-    )
-
-    df = df.sort_values(
-        by=[
-            'score',
-            'n_events_rem',
-            'n_players'
-        ],
-        ascending=True
-    ).drop_duplicates(
-        subset=['server', 'realm'],
-        keep='first'
-    )
-
-    col_order = [
-        'server',
-        'realm',
-        'n_events_rem',
-        'n_players',
-        'score'
-    ]
-
-    df = df[col_order].copy()
-
-    df_potential_runs = df.copy(deep=True)
-
-    # Set calculation parameters
-    events_weight = 0.2
-    players_weight = 0.8
-
-    max_realm_events = 50
-    max_realm_players = 85
-
-    # Calculate score for ranking potential o3 runs
-    df_potential_runs['score'] = (
-        (
-            (
-                max_realm_events - df['n_events_rem']
-            ) / max_realm_events
-        ) * events_weight
-    ) + (
-        (
-            df['n_players'] / max_realm_players
-        ) * players_weight
-    )
-
-    df_potential_runs.sort_values(
-        by=['score'],
-        ascending=False,
-        inplace=True
-    )
-
-    return df, df_potential_runs
+    return df_tier_1_feasibility, df_tier_2_feasibility, df_potential_runs, df_untracked_servers
 
 

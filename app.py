@@ -9,18 +9,18 @@ from src.pipeline import (
 )
 
 
-# Getting data
-df_raw, data_collected_time = webscraping_pipeline()
-df, df_potential_runs = data_processing_pipeline(df=df_raw) 
-
-data_collected_time_clean = data_collected_time.rsplit('.', 1)[0]
-
-
 # Setup page headers
 st.set_page_config(
     page_title='ROTMG Events Tracker',
     layout='wide'
 )
+
+
+# Getting data
+df_raw, data_collected_time = webscraping_pipeline()
+df_tier_1, df_tier_2, df_potential_runs, df_untracked = data_processing_pipeline(df=df_raw)
+
+data_collected_time_clean = data_collected_time.rsplit('.', 1)[0]
 
 
 # App page
@@ -30,10 +30,18 @@ st.write(f'Data last refreshed on {data_collected_time_clean} GMT+00:00')
 left_panel, right_panel = st.columns(2)
 
 with left_panel:
-    st.subheader('Good Realm Locations for O3 runs')
+    st.subheader('Tier 1 Locations for O3 runs')
 
     st.dataframe(
-        data=df,
+        data=df_tier_1,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.subheader('Tier 2 Locations for O3 runs')
+
+    st.dataframe(
+        data=df_tier_2,
         use_container_width=True,
         hide_index=True
     )
@@ -44,6 +52,14 @@ with right_panel:
 
     st.dataframe(
         data=df_potential_runs,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.subheader('Untracked Servers')
+
+    st.dataframe(
+        data=df_untracked,
         use_container_width=True,
         hide_index=True
     )
