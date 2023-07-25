@@ -118,6 +118,16 @@ def calculate_potential_runs(df: pd.DataFrame):
         ) * players_weight
     )
 
+    col_order = [
+        'server',
+        'realm',
+        'n_events_rem',
+        'n_players',
+        'score'
+    ]
+
+    df = df[col_order].copy()
+    
     df.sort_values(
         by=['score'],
         ascending=False,
