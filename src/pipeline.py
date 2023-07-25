@@ -142,7 +142,7 @@ def data_processing_pipeline(df: pd.DataFrame):
 
     df_tier_1_feasibility = calculate_realm_feasibility(df=df_tier_1)
     df_tier_2_feasibility = calculate_realm_feasibility(df=df_tier_2)
-    df_potential_runs = calculate_potential_runs(df=df)
+    df_potential_runs = calculate_potential_runs(df=df_tier_1)
 
     return df_tier_1_feasibility, df_tier_2_feasibility, df_potential_runs, df_untracked_servers
 
