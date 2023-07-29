@@ -18,7 +18,7 @@ st.set_page_config(
 
 # Getting data
 df_raw, data_collected_time = webscraping_pipeline()
-df_tier_1, df_tier_2, df_potential_runs, df_untracked = data_processing_pipeline(df=df_raw)
+df_tier_1, df_tier_2, df_potential_runs, df_untracked, df_nexus = data_processing_pipeline(df=df_raw)
 
 data_collected_time_clean = data_collected_time.rsplit('.', 1)[0]
 
@@ -60,6 +60,14 @@ with right_panel:
 
     st.dataframe(
         data=df_untracked,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.subheader('Server Nexus Load')
+
+    st.dataframe(
+        data=df_nexus,
         use_container_width=True,
         hide_index=True
     )

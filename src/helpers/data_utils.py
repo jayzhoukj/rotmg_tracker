@@ -32,6 +32,19 @@ def data_cleaning(df: pd.DataFrame):
 
     df['n_events_rem'] = df['rem_counts'].apply(extract_rem_count)
 
+    df = df.drop(
+        columns=[
+            'status',
+            'rem_counts'
+        ]
+    )
+
+    df_nexus = df[
+        (
+            df['server'] == 'Nexus'
+        )
+    ]
+    
     df = df[
         (
             df['realm'] != 'Nexus'
@@ -40,14 +53,9 @@ def data_cleaning(df: pd.DataFrame):
         ) & (
             df['server'] != 'USEast'
         )
-    ].drop(
-        columns=[
-            'status',
-            'rem_counts'
-        ]
-    )
+    ]
 
-    return df
+    return df, df_nexus
 
 
 def calculate_realm_feasibility(df: pd.DataFrame):
@@ -98,6 +106,9 @@ def calculate_realm_feasibility(df: pd.DataFrame):
 
 
 def calculate_potential_runs(df: pd.DataFrame):
+    df['n_events_rem'] = df['n_events_rem'].apply(int)
+    df['n_players'] = df['n_players'].apply(int)
+
     # Set calculation parameters
     events_weight = 0.2
     players_weight = 0.8
@@ -118,6 +129,16 @@ def calculate_potential_runs(df: pd.DataFrame):
         ) * players_weight
     )
 
+    df = df.sort_values(
+        by=['n_events_rem'],
+        ascending=True
+    )
+
+    df = df.drop_duplicates(
+        subset=['server', 'realm'],
+        keep='first'
+    )
+
     col_order = [
         'server',
         'realm',
@@ -135,5 +156,25 @@ def calculate_potential_runs(df: pd.DataFrame):
     )
 
     return df
+
+
+def tier_2_deduplication(
+    df_tier_1: pd.DataFrame,
+    df_tier_2: pd.DataFrame
+):
+    # Deduplicate Tier 2 locations with Tier 1 locations
+    df_tier_2 = df_tier_2[
+        (
+            df_tier_2['server'].apply(
+                lambda server: server not in df_tier_1['server'].unique()
+            )
+        ) & (
+            df_tier_2['realm'].apply(
+                lambda realm: realm not in df_tier_1['realm'].unique()
+            )
+        )
+    ]
+
+    return df_tier_2
 
 

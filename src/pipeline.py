@@ -11,7 +11,8 @@ from src.helpers.webscraping_utils import (
 from src.helpers.data_utils import (
     data_cleaning,
     calculate_realm_feasibility,
-    calculate_potential_runs
+    calculate_potential_runs,
+    tier_2_deduplication
 )
 
 
@@ -86,7 +87,7 @@ def webscraping_pipeline(data_limit: int = 200):
 
 
 def data_processing_pipeline(df: pd.DataFrame):
-    df = data_cleaning(df=df)
+    df, df_nexus = data_cleaning(df=df)
 
     df_all_servers = pd.DataFrame(
         {
@@ -143,7 +144,11 @@ def data_processing_pipeline(df: pd.DataFrame):
     df_tier_1_feasibility = calculate_realm_feasibility(df=df_tier_1)
     df_tier_2_feasibility = calculate_realm_feasibility(df=df_tier_2)
     df_potential_runs = calculate_potential_runs(df=df_tier_1)
+    df_tier_2_feasibility = tier_2_deduplication(
+        df_tier_1=df_tier_1_feasibility,
+        df_tier_2=df_tier_2_feasibility
+    )
 
-    return df_tier_1_feasibility, df_tier_2_feasibility, df_potential_runs, df_untracked_servers
+    return df_tier_1_feasibility, df_tier_2_feasibility, df_potential_runs, df_untracked_servers, df_nexus
 
 
