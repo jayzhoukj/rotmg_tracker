@@ -44,6 +44,19 @@ def data_cleaning(df: pd.DataFrame):
             df['realm'] == 'Nexus'
         )
     ]
+
+    df_nexus = df_nexus.drop_duplicates(
+        subset=[
+            'server',
+            'realm'
+        ],
+        keep='first'
+    ).drop(
+        columns=[
+            'data_timestamp',
+            'n_events_rem'
+        ]
+    )
     
     df = df[
         (
