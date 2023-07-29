@@ -41,7 +41,7 @@ def data_cleaning(df: pd.DataFrame):
 
     df_nexus = df[
         (
-            df['server'] == 'Nexus'
+            df['realm'] == 'Nexus'
         )
     ]
     
